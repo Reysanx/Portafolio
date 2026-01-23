@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alexander Sanchez | Desarrollador Web</title>
+    <meta name="description"
+        content="Portafolio de Alexander Sanchez, desarrollador web especializado en HTML, CSS, JS, Python y más.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="background-effects">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <header class="header">
+        <div class="container container-header">
+            <a href="#" class="logo">AlexDev<span class="accent">.</span></a>
+
+            <button class="mobile-toggle" aria-label="Abrir menú">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li><a href="#inicio" class="nav-link active">Inicio</a></li>
+                    <li><a href="#sobre-mi" class="nav-link">Sobre mí</a></li>
+                    <li><a href="#skills" class="nav-link">Skills</a></li>
+                    <li><a href="#proyectos" class="nav-link">Proyectos</a></li>
+                    <li><a href="#contacto" class="nav-link btn-primary">Contacto</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="inicio" class="hero">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <p class="hero-subtitle">Hola, soy</p>
+                    <h1 class="hero-title">Alexander <span class="text-gradient">Sanchez</span></h1>
+                    <p class="hero-description">
+                        Desarrollador Web Full Stack en formación. Transformo ideas en experiencias digitales modernas y
+                        funcionales. Apasionado por aprender y crear.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#proyectos" class="btn btn-primary">Ver Proyectos</a>
+                        <a href="#contacto" class="btn btn-outline">Contáctame</a>
+                    </div>
+                    <div class="social-links">
+                        <a href="https://github.com/Reysanx/" target="_blank" aria-label="GitHub"><i
+                                class="fab fa-github"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="mailto:tuemail@ejemplo.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="img-wrapper">
+                        <!-- Placeholder image generated later -->
+                        <img src="assets/avatar_placeholder.png" alt="Alexander Sanchez" class="profile-img">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="sobre-mi" class="section about">
+            <div class="container">
+                <h2 class="section-title">Sobre <span class="text-gradient">Mí</span></h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>
+                            Soy un desarrollador apasionado por la tecnología y el aprendizaje continuo. Aunque estoy
+                            empezando mi carrera profesional, cuento con una base sólida en múltiples lenguajes y
+                            herramientas.
+                        </p>
+                        <p>
+                            Me especializo en crear soluciones limpias y eficientes, combinando un buen diseño con un
+                            código robusto. Actualmente estoy expandiendo mis conocimientos en AWS y Docker para
+                            despliegues modernos.
+                        </p>
+                        <ul class="about-stats">
+                            <li>
+                                <span class="stat-number">10+</span>
+                                <span class="stat-label">Tecnologías</span>
+                            </li>
+                            <li>
+                                <span class="stat-number">5+</span>
+                                <span class="stat-label">Proyectos</span>
+                            </li>
+                            <li>
+                                <span class="stat-number">100%</span>
+                                <span class="stat-label">Compromiso</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="section skills">
+            <div class="container">
+                <h2 class="section-title">Mis <span class="text-gradient">Habilidades</span></h2>
+                <div class="skills-grid">
+                    <!-- Frontend -->
+                    <div class="skill-category">
+                        <h3>Frontend</h3>
+                        <div class="skill-items">
+                            <div class="skill-item"><i class="fab fa-html5"></i> HTML5</div>
+                            <div class="skill-item"><i class="fab fa-css3-alt"></i> CSS3</div>
+                            <div class="skill-item"><i class="fab fa-js"></i> JavaScript</div>
+                            <div class="skill-item"><i class="fab fa-react"></i> React</div>
+                            <div class="skill-item"><i class="fab fa-angular"></i> Angular</div>
+                            <div class="skill-item"><i class="fas fa-wind"></i> Tailwind</div>
+                        </div>
+                    </div>
+
+                    <!-- Backend -->
+                    <div class="skill-category">
+                        <h3>Backend</h3>
+                        <div class="skill-items">
+                            <div class="skill-item"><i class="fab fa-python"></i> Python</div>
+                            <div class="skill-item"><i class="fab fa-php"></i> PHP</div>
+                            <div class="skill-item"><i class="fab fa-laravel"></i> Laravel</div>
+                            <div class="skill-item"><i class="fab fa-java"></i> Java</div>
+                            <div class="skill-item"><i class="fas fa-database"></i> SQL</div>
+                        </div>
+                    </div>
+
+                    <!-- Tools & DevOps -->
+                    <div class="skill-category">
+                        <h3>Herramientas & DevOps</h3>
+                        <div class="skill-items">
+                            <div class="skill-item"><i class="fab fa-git-alt"></i> Git</div>
+                            <div class="skill-item"><i class="fab fa-docker"></i> Docker</div>
+                            <div class="skill-item"><i class="fab fa-aws"></i> AWS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="proyectos" class="section projects">
+            <div class="container">
+                <h2 class="section-title">Mis <span class="text-gradient">Proyectos</span></h2>
+                <div class="projects-grid">
+
+                    <!-- Project 1 -->
+                    <article class="project-card">
+                        <div class="project-image">
+                            <img src="assets/project_placeholder.png" alt="Proyecto 1">
+                            <div class="project-overlay">
+                                <a href="#" class="btn-icon"><i class="fab fa-github"></i></a>
+                                <a href="#" class="btn-icon"><i class="fas fa-external-link-alt"></i></a>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3>Portafolio Personal</h3>
+                            <p>Sitio web responsive creado con HTML, CSS moderno y JavaScript. Diseño oscuro y
+                                minimalista.</p>
+                            <div class="project-tags">
+                                <span>HTML</span>
+                                <span>CSS</span>
+                                <span>JS</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Project 2 (Placeholder) -->
+                    <article class="project-card">
+                        <div class="project-image">
+                            <img src="assets/project_placeholder.png" alt="Proyecto 2">
+                            <div class="project-overlay">
+                                <a href="#" class="btn-icon"><i class="fab fa-github"></i></a>
+                                <a href="#" class="btn-icon"><i class="fas fa-external-link-alt"></i></a>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3>Gestor de Tareas</h3>
+                            <p>Aplicación web para gestión de tareas con validación de usuarios y base de datos.</p>
+                            <div class="project-tags">
+                                <span>React</span>
+                                <span>Node.js</span>
+                                <span>SQL</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Project 3 (Placeholder) -->
+                    <article class="project-card">
+                        <div class="project-image">
+                            <img src="assets/project_placeholder.png" alt="Proyecto 3">
+                            <div class="project-overlay">
+                                <a href="#" class="btn-icon"><i class="fab fa-github"></i></a>
+                                <a href="#" class="btn-icon"><i class="fas fa-external-link-alt"></i></a>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3>E-commerce Demo</h3>
+                            <p>Tienda online con carrito de compras, catálogo de productos y pasarela de pago simulada.
+                            </p>
+                            <div class="project-tags">
+                                <span>PHP</span>
+                                <span>Laravel</span>
+                                <span>MySQL</span>
+                            </div>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contacto" class="section contact">
+            <div class="container">
+                <h2 class="section-title">¿Hablamos?</h2>
+                <p class="contact-text">Estoy interesado en nuevas oportunidades y colaboraciones. ¡Envíame un mensaje!
+                </p>
+
+                <div class="contact-wrapper">
+                    <form class="contact-form" action="https://formspree.io/f/PLACEHOLDER" method="POST">
+                        <div class="form-group">
+                            <input type="text" name="name" placeholder="Tu Nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="email" placeholder="Tu Email" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="message" placeholder="Tu Mensaje" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <p>&copy; 2026 Alexander Sanchez. Todos los derechos reservados.</p>
+            <div class="footer-social">
+                <a href="https://github.com/Reysanx/" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
