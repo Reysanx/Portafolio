@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mobileToggle.addEventListener('click', () => {
         nav.classList.toggle('active');
         const icon = mobileToggle.querySelector('i');
-        if(nav.classList.contains('active')) {
+        if (nav.classList.contains('active')) {
             icon.classList.remove('fa-bars');
             icon.classList.add('fa-times');
         } else {
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close menu when clicking a link
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
-            if(nav.classList.contains('active')) {
+            if (nav.classList.contains('active')) {
                 nav.classList.remove('active');
                 mobileToggle.querySelector('i').classList.remove('fa-times');
                 mobileToggle.querySelector('i').classList.add('fa-bars');
@@ -33,8 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const targetId = this.getAttribute('href');
             const targetSection = document.querySelector(targetId);
-            
-            if(targetSection) {
+
+            if (targetSection) {
                 targetSection.scrollIntoView({
                     behavior: 'smooth'
                 });
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 navLinks.forEach(link => link.classList.remove('active'));
                 // Add active class to corresponding link
                 const activeLink = document.querySelector(`.nav-link[href="#${id}"]`);
-                if(activeLink) {
+                if (activeLink) {
                     activeLink.classList.add('active');
                 }
             }
@@ -67,23 +67,42 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(section);
     });
 
-    // Simple Reveal Animation on Scroll
-    const revealElements = document.querySelectorAll('.skill-category, .project-card, .about-content');
-    
+    // Button Ripple Effect
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            let x = e.clientX - e.target.offsetLeft;
+            let y = e.clientY - e.target.offsetTop;
+
+            let ripples = document.createElement('span');
+            ripples.style.left = x + 'px';
+            ripples.style.top = y + 'px';
+            this.appendChild(ripples);
+
+            setTimeout(() => {
+                ripples.remove();
+            }, 1000);
+        });
+    });
+
+    // Enhanced Reveal Animation on Scroll
+    const revealElements = document.querySelectorAll('.skill-category, .project-card, .about-content, .hero-content, .section-title');
+
     const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if(entry.isIntersecting) {
+            if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
-                revealObserver.unobserve(entry.target);
+                // Optional: Stop observing once revealed
+                // revealObserver.unobserve(entry.target); 
             }
         });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.15 });
 
     revealElements.forEach(el => {
         el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        el.style.transform = 'translateY(50px)';
+        el.style.transition = 'opacity 0.8s cubic-bezier(0.5, 0, 0, 1), transform 0.8s cubic-bezier(0.5, 0, 0, 1)';
         revealObserver.observe(el);
     });
 });
