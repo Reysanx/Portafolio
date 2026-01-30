@@ -16,6 +16,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Cursor Glow Effect
+    const cursorGlow = document.querySelector('.cursor-glow');
+
+    if (cursorGlow) {
+        document.addEventListener('mousemove', (e) => {
+            requestAnimationFrame(() => {
+                cursorGlow.style.opacity = '1';
+                cursorGlow.style.left = e.clientX + 'px';
+                cursorGlow.style.top = e.clientY + 'px';
+            });
+        });
+
+        // Hide glow when leaving window
+        document.addEventListener('mouseout', () => {
+            cursorGlow.style.opacity = '0';
+        });
+
+        document.addEventListener('mouseover', () => {
+            cursorGlow.style.opacity = '1';
+        });
+    }
+
     // Close menu when clicking a link
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
