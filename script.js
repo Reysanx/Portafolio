@@ -137,15 +137,23 @@ function initAIOrb() {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    const cx = width / 2;
-    const cy = height / 2;
+
+    let width, height;
+
+    function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
 
     // 3D Engine Constants
     const focalLength = 800;
-    const sphereRadius = 260;
-    const numDots = 1800;
+    const sphereRadius = 450; // Increased size
+    const numDots = 4000; // Increased density for larger size
 
     // Arrays to hold particle data
     let particles = [];
@@ -175,12 +183,11 @@ function initAIOrb() {
     function animate() {
         time += 0.01;
 
-        // Clear canvas with a very slight fade
-        ctx.fillStyle = 'rgba(10, 10, 15, 1)'; // Match body background
+        // Clear canvas
+        ctx.fillStyle = 'rgba(10, 10, 15, 1)';
         ctx.fillRect(0, 0, width, height);
 
-        let renderedPoints = [];
-
+        // Pre-calculate rotation
         let mainRotX = time * 0.5;
         let mainRotZ = Math.sin(time * 0.3) * 0.2;
 
@@ -189,6 +196,8 @@ function initAIOrb() {
         let cosZ = Math.cos(mainRotZ);
         let sinZ = Math.sin(mainRotZ);
 
+        // Calculate points once per frame
+        let points = [];
         for (let i = 0; i < numDots; i++) {
             let p = particles[i];
             p.lon += p.orbitSpeed;
@@ -213,30 +222,35 @@ function initAIOrb() {
             let rawPulse = (wave1 + wave2 + wave3) / 3;
             let energy = Math.pow((rawPulse + 1) / 2, 4);
 
-            renderedPoints.push({
-                x: x2,
-                y: y2,
-                z: z2,
-                energy: energy,
-                baseSize: p.baseSize
-            });
+            points.push({ x: x2, y: y2, z: z2, energy: energy, baseSize: p.baseSize });
         }
 
-        renderedPoints.sort((a, b) => b.z - a.z);
+        points.sort((a, b) => b.z - a.z);
 
+        // Draw orbs at corners
+        drawOrb(points, 0, 0); // Top Left
+        drawOrb(points, width, height); // Bottom Right
+
+        requestAnimationFrame(animate);
+    }
+
+    function drawOrb(points, cx, cy) {
         for (let i = 0; i < numDots; i++) {
-            let pt = renderedPoints[i];
+            let pt = points[i];
             let scale = focalLength / (focalLength + pt.z + 200);
             if (scale < 0) continue;
 
             let screenX = cx + pt.x * scale;
             let screenY = cy + pt.y * scale;
 
+            // Optimization: Only draw points that could be visible (slightly more than one quarter of the orb)
+            if (cx === 0 && (screenX > sphereRadius * 1.2 || screenY > sphereRadius * 1.2)) continue;
+            if (cx === width && (screenX < width - sphereRadius * 1.2 || screenY < height - sphereRadius * 1.2)) continue;
+
             let zFade = (pt.z + sphereRadius) / (sphereRadius * 2);
             zFade = Math.max(0, Math.min(1, zFade));
 
             let baseAlpha = 0.8 - zFade * 0.7;
-
             let r = Math.floor(0 + pt.energy * 200);
             let g = Math.floor(100 + pt.energy * 155);
             let b = Math.floor(200 + pt.energy * 55);
@@ -257,8 +271,6 @@ function initAIOrb() {
 
             ctx.fill();
         }
-
-        requestAnimationFrame(animate);
     }
 
     animate();
