@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Thinking Orb</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #030308;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            /* Soft background glow to frame the orb */
+            box-shadow: 0 0 100px rgba(0, 200, 255, 0.05), inset 0 0 150px rgba(0, 0, 0, 1);
+            background: radial-gradient(circle at center, #0a0a1a 0%, #030308 60%);
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="canvas-container">
+        <canvas id="aiOrb" width="800" height="800"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('aiOrb');
+        const ctx = canvas.getContext('2d');
+
+        const width = canvas.width;
+        const height = canvas.height;
+        const cx = width / 2;
+        const cy = height / 2;
+
+        // 3D Engine Constants
+        const focalLength = 800;
+        const sphereRadius = 260;
+        const numDots = 1800;
+
+        // Arrays to hold particle data
+        let particles = [];
+
+        // Generate particles distributed on a sphere
+        // We use a Fibonacci sphere distribution for an even spread, 
+        // then convert to spherical coordinates so we can animate their orbits.
+        const goldenRatio = Math.PI * (3 - Math.sqrt(5));
+
+        for (let i = 0; i < numDots; i++) {
+            let y = 1 - (i / (numDots - 1)) * 2; // y goes from 1 to -1
+            let radiusAtY = Math.sqrt(1 - y * y);
+            let theta = goldenRatio * i; // longitude
+
+            let x = Math.cos(theta) * radiusAtY;
+            let z = Math.sin(theta) * radiusAtY;
+
+            // Convert to spherical coords for easy orbiting
+            let lat = Math.asin(y);
+            let lon = Math.atan2(z, x);
+
+            particles.push({
+                lat: lat,
+                lon: lon,
+                // Variations in orbit speed based on latitude and random offset
+                orbitSpeed: (0.002 + Math.random() * 0.003) * (y > 0 ? 1 : -1),
+                baseSize: 1 + Math.random() * 1.5
+            });
+        }
+
+        let time = 0;
+
+        function animate() {
+            time += 0.01;
+
+            // Clear canvas with a very slight fade for motion blur
+            ctx.fillStyle = 'rgba(3, 3, 8, 1)';
+            ctx.fillRect(0, 0, width, height);
+
+            let renderedPoints = [];
+
+            // Base rotation of the entire orb
+            let mainRotX = time * 0.5;
+            let mainRotZ = Math.sin(time * 0.3) * 0.2;
+
+            let cosX = Math.cos(mainRotX);
+            let sinX = Math.sin(mainRotX);
+            let cosZ = Math.cos(mainRotZ);
+            let sinZ = Math.sin(mainRotZ);
+
+            for (let i = 0; i < numDots; i++) {
+                let p = particles[i];
+
+                // Update longitude to make dots orbit
+                p.lon += p.orbitSpeed;
+
+                // Convert back to Cartesian for 3D projection
+                let rCosLat = sphereRadius * Math.cos(p.lat);
+                let ox = rCosLat * Math.cos(p.lon);
+                let oy = sphereRadius * Math.sin(p.lat);
+                let oz = rCosLat * Math.sin(p.lon);
+
+                // Rotate around X axis (tilt)
+                let y1 = oy * cosX - oz * sinX;
+                let z1 = oz * cosX + oy * sinX;
+                let x1 = ox;
+
+                // Rotate around Z axis (wobble)
+                let x2 = x1 * cosZ - y1 * sinZ;
+                let y2 = y1 * cosZ + x1 * sinZ;
+                let z2 = z1;
+
+                // --- Calculate "Pulse" traveling across surface ---
+                // We use intersecting 3D sine waves moving through space to create organic pulses
+                let wave1 = Math.sin(x2 * 0.015 + time * 4);
+                let wave2 = Math.cos(y2 * 0.02 - time * 3);
+                let wave3 = Math.sin(z2 * 0.01 + time * 5);
+
+                // Combine waves and map to a 0-1 energy level
+                let rawPulse = (wave1 + wave2 + wave3) / 3;
+                let energy = Math.pow((rawPulse + 1) / 2, 4); // Power of 4 makes pulses sharp and distinct
+
+                renderedPoints.push({
+                    x: x2,
+                    y: y2,
+                    z: z2,
+                    energy: energy,
+                    baseSize: p.baseSize
+                });
+            }
+
+            // Depth sorting (Painter's Algorithm) to draw back dots first
+            renderedPoints.sort((a, b) => b.z - a.z);
+
+            // Render Phase
+            for (let i = 0; i < numDots; i++) {
+                let pt = renderedPoints[i];
+
+                // 3D Perspective Projection
+                let scale = focalLength / (focalLength + pt.z + 200);
+                if (scale < 0) continue; // Behind camera
+
+                let screenX = cx + pt.x * scale;
+                let screenY = cy + pt.y * scale;
+
+                // Styling based on depth and energy
+                let zFade = (pt.z + sphereRadius) / (sphereRadius * 2); // Map Z to 0-1
+                zFade = Math.max(0, Math.min(1, zFade)); // Clamp
+
+                // Front dots are more opaque
+                let baseAlpha = 0.8 - zFade * 0.7;
+
+                // Calculate colors based on the pulse energy
+                // Low energy: Dim, deep cyan/blue
+                // High energy: Bright cyan/white
+                let r = Math.floor(0 + pt.energy * 200);
+                let g = Math.floor(100 + pt.energy * 155);
+                let b = Math.floor(200 + pt.energy * 55);
+
+                let alpha = Math.min(1, baseAlpha + pt.energy * 0.8);
+                let radius = (pt.baseSize + pt.energy * 3) * scale;
+
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+
+                // Add a glow effect only to the high-energy (pulsing) dots to save CPU
+                if (pt.energy > 0.6 && zFade < 0.5) {
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = `rgba(0, 255, 255, ${pt.energy})`;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+
+                ctx.fill();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start animation loop
+        animate();
+    </script>
+</body>
+
+</html>
