@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Esférica Viva - Pequeña y Gruesa</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #030308;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            /* Brillo de fondo ajustado al nuevo tamaño */
+            box-shadow: 0 0 80px rgba(255, 160, 0, 0.05), inset 0 0 150px rgba(0, 0, 0, 1);
+            background: radial-gradient(circle at center, #0a0a1a 0%, #030308 50%);
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="canvas-container">
+        <canvas id="livingNetwork" width="800" height="800"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('livingNetwork');
+        const ctx = canvas.getContext('2d');
+
+        const width = canvas.width;
+        const height = canvas.height;
+        const cx = width / 2;
+        const cy = height / 2;
+
+        // Constantes del motor 3D
+        const focalLength = 800;
+        // REDUCIDO: El radio de la esfera es ahora mucho menor (antes 260)
+        const sphereRadius = 150;
+
+        // Colores Uniformes (Ámbar)
+        const colorAmbar = 'rgba(255, 170, 70,';
+        const colorLuz = 'rgba(255, 230, 200,';
+
+        // --- Geometría Esférica Uniforme ---
+        let rawNodes = [];
+        let numNodes = 65;
+        const goldenRatio = Math.PI * (3 - Math.sqrt(5));
+
+        for (let i = 0; i < numNodes; i++) {
+            let y = 1 - (i / (numNodes - 1)) * 2;
+            let radiusAtY = Math.sqrt(1 - y * y);
+            let theta = goldenRatio * i;
+
+            rawNodes.push({
+                baseX: sphereRadius * Math.cos(theta) * radiusAtY,
+                baseY: sphereRadius * y,
+                baseZ: sphereRadius * Math.sin(theta) * radiusAtY,
+
+                oscSpeed: 0.5 + Math.random() * 1.5,
+                phaseX: Math.random() * Math.PI * 2,
+                phaseY: Math.random() * Math.PI * 2,
+                phaseZ: Math.random() * Math.PI * 2,
+                amplitude: 8 + Math.random() * 15, // Oscilación adaptada al nuevo tamaño
+
+                glowSpeed: 0.1 + Math.random() * 0.1,
+                baseSize: 1.5 + Math.random() * 1.5
+            });
+        }
+
+        // Definir las conexiones
+        let edges = [];
+        for (let i = 0; i < numNodes; i++) {
+            for (let j = i + 1; j < numNodes; j++) {
+                let dx = rawNodes[i].baseX - rawNodes[j].baseX;
+                let dy = rawNodes[i].baseY - rawNodes[j].baseY;
+                let dz = rawNodes[i].baseZ - rawNodes[j].baseZ;
+                let distSq = dx * dx + dy * dy + dz * dz;
+
+                // Ajustado para conectar correctamente en el nuevo tamaño
+                if (distSq < sphereRadius * sphereRadius * 0.55) {
+                    edges.push({ a: i, b: j });
+                }
+            }
+        }
+
+        // --- Partículas de Luz ---
+        let lightParticles = [];
+        const numLightParticles = 120; // Ligeramente reducido para no saturar la red más pequeña
+
+        function createLightParticle() {
+            let edgeIndex = Math.floor(Math.random() * edges.length);
+            return {
+                edgeIndex: edgeIndex,
+                pos: Math.random(),
+                speed: 0.004 + Math.random() * 0.006,
+                color: Math.random() < 0.8 ? colorAmbar : colorLuz
+            };
+        }
+
+        for (let i = 0; i < numLightParticles; i++) {
+            lightParticles.push(createLightParticle());
+        }
+
+        // --- Motor de Animación ---
+        let time = 0;
+
+        function animate() {
+            time += 0.01;
+
+            // Rastro oscuro
+            ctx.fillStyle = 'rgba(3, 3, 8, 1)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Rotación global constante (sin interacción del ratón)
+            let rotX = time * 0.2;
+            let rotY = time * 0.3;
+            let rotZ = Math.sin(time * 0.1) * 0.1;
+
+            let cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+            let cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+            let cosZ = Math.cos(rotZ), sinZ = Math.sin(rotZ);
+
+            let processedNodes = [];
+
+            // 1. Aplicar Transformaciones y Fluctuaciones Orgánicas
+            for (let p of rawNodes) {
+                // Oscilación natural
+                let ox = p.baseX + Math.sin(time * p.oscSpeed + p.phaseX) * p.amplitude;
+                let oy = p.baseY + Math.cos(time * p.oscSpeed * 1.2 + p.phaseY) * p.amplitude;
+                let oz = p.baseZ + Math.sin(time * p.oscSpeed * 0.8 + p.phaseZ) * p.amplitude;
+
+                // Rotaciones 3D
+                let y1 = oy * cosX - oz * sinX;
+                let z1 = oz * cosX + oy * sinX;
+                let x1 = ox;
+
+                let x2 = x1 * cosY - z1 * sinY;
+                let z2 = z1 * cosY + x1 * sinY;
+                let y2 = y1;
+
+                let x3 = x2 * cosZ - y2 * sinZ;
+                let y3 = y2 * cosZ + x2 * sinZ;
+                let z3 = z2;
+
+                let glow = (Math.sin(time * p.glowSpeed * 10) + 1) / 2;
+
+                processedNodes.push({
+                    x: x3, y: y3, z: z3,
+                    baseSize: p.baseSize,
+                    glow: glow
+                });
+            }
+
+            let renderedLines = [];
+            let renderedNodes = [];
+            let renderedLights = [];
+
+            // 2. Proyectar Líneas
+            for (let edge of edges) {
+                let pA = processedNodes[edge.a];
+                let pB = processedNodes[edge.b];
+
+                let scaleA = focalLength / (focalLength + pA.z + 100);
+                let scaleB = focalLength / (focalLength + pB.z + 100);
+                if (scaleA < 0 || scaleB < 0) continue;
+
+                renderedLines.push({
+                    ax: cx + pA.x * scaleA, ay: cy + pA.y * scaleA,
+                    bx: cx + pB.x * scaleB, by: cy + pB.y * scaleB,
+                    z: (pA.z + pB.z) / 2
+                });
+            }
+
+            // 3. Proyectar Nodos
+            for (let i = 0; i < processedNodes.length; i++) {
+                let p = processedNodes[i];
+                let scale = focalLength / (focalLength + p.z + 100);
+                if (scale < 0) continue;
+
+                renderedNodes.push({
+                    x: cx + p.x * scale,
+                    y: cy + p.y * scale,
+                    z: p.z,
+                    size: (p.baseSize + p.glow * 1.5) * scale,
+                    glow: p.glow
+                });
+            }
+
+            // 4. Procesar y Proyectar Luces Viajeras
+            for (let p of lightParticles) {
+                p.pos += p.speed;
+                if (p.pos >= 1) {
+                    p.edgeIndex = Math.floor(Math.random() * edges.length);
+                    p.pos = 0;
+                    p.color = Math.random() < 0.7 ? colorAmbar : colorLuz;
+                }
+
+                let edge = edges[p.edgeIndex];
+                let pA = processedNodes[edge.a];
+                let pB = processedNodes[edge.b];
+
+                let ptX = pA.x + (pB.x - pA.x) * p.pos;
+                let ptY = pA.y + (pB.y - pA.y) * p.pos;
+                let ptZ = pA.z + (pB.z - pA.z) * p.pos;
+
+                let scale = focalLength / (focalLength + ptZ + 100);
+                if (scale < 0) continue;
+
+                renderedLights.push({
+                    x: cx + ptX * scale,
+                    y: cy + ptY * scale,
+                    z: ptZ,
+                    // Luz un poco más grande para compensar líneas gruesas
+                    size: 3.5 * scale,
+                    color: p.color
+                });
+            }
+
+            // 5. Ordenar por profundidad 
+            let allElements = [
+                ...renderedLines.map(l => ({ ...l, type: 'line' })),
+                ...renderedNodes.map(n => ({ ...n, type: 'node' })),
+                ...renderedLights.map(lt => ({ ...lt, type: 'light' }))
+            ];
+            allElements.sort((a, b) => b.z - a.z);
+
+            // 6. Renderizar
+            for (let el of allElements) {
+                let zFade = (el.z + sphereRadius) / (sphereRadius * 2.5);
+                zFade = Math.max(0, Math.min(1, zFade));
+                let depthAlpha = 1.0 - zFade * 0.8;
+
+                ctx.shadowBlur = 0;
+
+                if (el.type === 'line') {
+                    ctx.beginPath();
+                    ctx.moveTo(el.ax, el.ay);
+                    ctx.lineTo(el.bx, el.by);
+
+                    ctx.strokeStyle = `${colorAmbar} ${depthAlpha * 0.6})`;
+                    // AUMENTADO: Las líneas son mucho más gruesas ahora (antes 1.2)
+                    ctx.lineWidth = 3.5;
+                    ctx.stroke();
+
+                } else if (el.type === 'node') {
+                    ctx.beginPath();
+                    ctx.arc(el.x, el.y, el.size, 0, Math.PI * 2);
+                    let nodeAlpha = depthAlpha * (0.8 + el.glow * 0.2);
+                    ctx.fillStyle = `${colorAmbar} ${nodeAlpha})`;
+
+                    if (zFade < 0.4) {
+                        ctx.shadowBlur = 12;
+                        ctx.shadowColor = `rgba(255, 170, 70, ${el.glow * 0.6})`;
+                    }
+                    ctx.fill();
+
+                } else if (el.type === 'light') {
+                    ctx.beginPath();
+                    ctx.arc(el.x, el.y, el.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `${el.color} ${depthAlpha})`;
+
+                    if (zFade < 0.6) {
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = `rgba(255, 170, 70, ${depthAlpha})`;
+                    }
+                    ctx.fill();
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+
+</html>
